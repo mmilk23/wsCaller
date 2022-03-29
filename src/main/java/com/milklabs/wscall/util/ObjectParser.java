@@ -248,7 +248,7 @@ public abstract class ObjectParser {
 	}
 
 	/**
-	 * Transforma o par�metro informado em um valor booleano.
+	 * Transforma o parametro informado em um valor booleano.
 	 * 
 	 * @param  value Objeto a ser transformado.
 	 * @return <code>True</code> se for um <em><code>boolean</code></em> =
