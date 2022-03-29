@@ -1,2 +1,2 @@
 # wsCaller
-Implements generic calls to any webservice, whitout generate stubs o any other bullshit
+Implements generic calls to any webservice, whitout generate stubs or any other bullshit
