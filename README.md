@@ -5,7 +5,10 @@
 [![codecov](https://codecov.io/gh/mmilk23/wsCaller/branch/main/graph/badge.svg)](https://codecov.io/gh/mmilk23/wsCaller)
 [![Coverage Status](https://coveralls.io/repos/github/mmilk23/wsCaller/badge.svg)](https://coveralls.io/github/mmilk23/wsCaller)
 ![Dependabot](https://img.shields.io/badge/Dependabot-enabled-brightgreen)
+[![Known Vulnerabilities](https://snyk.io/test/github/mmilk23/wsCaller/badge.svg)](https://snyk.io/test/github/mmilk23/wsCaller)
 [![Last Updated](https://img.shields.io/github/last-commit/mmilk23/wsCaller.svg)](https://github.com/mmilk23/wsCaller/commits/main)
+
+
 
 
 **wsCaller** is a lightweight Java library for making secure and generic web service calls without the need to generate stubs or rely on complex frameworks. It is designed to streamline interactions with SOAP-based web services while providing a customizable and testable architecture.
