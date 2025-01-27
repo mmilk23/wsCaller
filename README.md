@@ -1,7 +1,7 @@
 
 # wsCaller
 
-[![Build Status](https://github.com/mmilk23/wsCaller/actions/workflows/elixir.yml/badge.svg)](https://github.com/mmilk23/wsCaller/actions)
+[![Build Status](https://github.com/mmilk23/wsCaller/actions/workflows/maven.yml/badge.svg)](https://github.com/mmilk23/wsCaller/actions)
 [![codecov](https://codecov.io/gh/mmilk23/wsCaller/branch/main/graph/badge.svg)](https://codecov.io/gh/mmilk23/wsCaller)
 [![Coverage Status](https://coveralls.io/repos/github/mmilk23/wsCaller/badge.svg)](https://coveralls.io/github/mmilk23/wsCaller)
 ![Dependabot](https://img.shields.io/badge/Dependabot-enabled-brightgreen)
