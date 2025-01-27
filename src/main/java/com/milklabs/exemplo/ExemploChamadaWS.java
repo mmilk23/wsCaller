@@ -22,48 +22,35 @@ import com.milklabs.wscall.SecureWebServiceCaller;
 import com.milklabs.wscall.WebServiceException;
 
 /**
-@author mmilk23
-
-Example of use
-look at main method: just send a Map with parameters and get response
-In this example, we use a WS to get a adress based on brazilian ZIP codes
-
-
-Request example:
-WSDL: https://apps.correios.com.br/SigepMasterJPA/AtendeClienteService/AtendeCliente?wsdl 	
-ENDPOINT: https://apps.correios.com.br/SigepMasterJPA/AtendeClienteService/AtendeCliente 
-
-REQUEST: 
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:cli="http://cliente.bean.master.sigep.bsb.correios.com.br/">
-   <soapenv:Header/>
-   <soapenv:Body>
-      <cli:consultaCEP>
-         <!--Optional:-->
-         <cep>22410030</cep>
-      </cli:consultaCEP>
-   </soapenv:Body>
-</soapenv:Envelope>
-
-RESPONSE:
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-   <soap:Body>
-      <ns2:consultaCEPResponse xmlns:ns2="http://cliente.bean.master.sigep.bsb.correios.com.br/">
-         <return>
-            <bairro>Ipanema</bairro>
-            <cep>22410030</cep>
-            <cidade>Rio de Janeiro</cidade>
-            <complemento2/>
-            <end>Praça Nossa Senhora da Paz</end>
-            <uf>RJ</uf>
-         </return>
-      </ns2:consultaCEPResponse>
-   </soap:Body>
-</soap:Envelope>	 
-}
-*/
+ * @author mmilk23
+ * 
+ *         Example of use look at main method: just send a Map with parameters
+ *         and get response In this example, we use a WS to get a adress based
+ *         on brazilian ZIP codes
+ * 
+ * 
+ *         Request example: WSDL:
+ *         https://apps.correios.com.br/SigepMasterJPA/AtendeClienteService/AtendeCliente?wsdl
+ *         ENDPOINT:
+ *         https://apps.correios.com.br/SigepMasterJPA/AtendeClienteService/AtendeCliente
+ * 
+ *         REQUEST: <soapenv:Envelope xmlns:soapenv=
+ *         "http://schemas.xmlsoap.org/soap/envelope/" xmlns:cli=
+ *         "http://cliente.bean.master.sigep.bsb.correios.com.br/">
+ *         <soapenv:Header/> <soapenv:Body> <cli:consultaCEP> <!--Optional:-->
+ *         <cep>22410030</cep> </cli:consultaCEP> </soapenv:Body>
+ *         </soapenv:Envelope>
+ * 
+ *         RESPONSE: <soap:Envelope xmlns:soap=
+ *         "http://schemas.xmlsoap.org/soap/envelope/"> <soap:Body>
+ *         <ns2:consultaCEPResponse xmlns:ns2=
+ *         "http://cliente.bean.master.sigep.bsb.correios.com.br/"> <return>
+ *         <bairro>Ipanema</bairro> <cep>22410030</cep> <cidade>Rio de
+ *         Janeiro</cidade> <complemento2/> <end>Praça Nossa Senhora da
+ *         Paz</end> <uf>RJ</uf> </return> </ns2:consultaCEPResponse>
+ *         </soap:Body> </soap:Envelope> }
+ */
 public class ExemploChamadaWS {
-
-
 
 	public static void main(String[] args) {
 
@@ -77,6 +64,24 @@ public class ExemploChamadaWS {
 
 		try {
 			String xmlOutput = wsCaller.chamarWebService("consultaCEP", params, null, null);
+					
+			//Unfortunately, the service has been showing constant errors. As a proof of concept, I mocked up the response.
+		    xmlOutput = "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">"
+						 + "<soap:Body>"
+						 + "   <ns2:consultaCEPResponse xmlns:ns2=\"http://cliente.bean.master.sigep.bsb.correios.com.br/\">"
+						 + "      <return>"
+						 + "         <bairro>Ipanema</bairro>"
+						 + "         <cep>22410030</cep>"
+						 + "         <cidade>Rio de Janeiro</cidade>"
+						 + "         <complemento2/>"
+						 + "         <end>Praça Nossa Senhora da Paz</end>"
+						 + "         <uf>RJ</uf>"
+						 + "      </return>"
+						 + "   </ns2:consultaCEPResponse>"
+						 + "</soap:Body>"
+						 + "</soap:Envelope>";	
+			
+			
 			System.out.println(parseResponse(xmlOutput).toString());
 		} catch (WebServiceException e) {
 			e.printStackTrace();

@@ -1,7 +1,6 @@
 package com.milklabs.wscall.util;
 
 import java.util.List;
-import java.util.StringTokenizer;
 
 /**
  * 
@@ -122,24 +121,6 @@ public abstract class StringUtils {
 		return false;
 	}
 
-	public static String capitalizeFirstLettersTokenizer(String s) {
-
-		final StringTokenizer st = new StringTokenizer(s, " ", true);
-		final StringBuilder sb = new StringBuilder();
-
-		while (st.hasMoreTokens()) {
-			String token = st.nextToken();
-			if ("uo".equalsIgnoreCase(token))
-				token = " UO ";
-			else
-				token = String.format("%s%s", Character.toUpperCase(token.charAt(0)), token.substring(1).toLowerCase());
-			sb.append(token);
-		}
-
-		return sb.toString();
-
-	}
-
 	public static String trimInsideWithOneSpace(String string) {
 		int amountBlanks = 0;
 		StringBuilder newString = new StringBuilder();
@@ -200,7 +181,7 @@ public abstract class StringUtils {
 				return StringUtils.EMPTY_STRING;
 			}
 		}
-		return value;
+		return StringUtils.EMPTY_STRING;
 	}
 
 	/**

@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.milklabs</groupId>
 	<artifactId>wsCaller</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.1-SNAPSHOT</version>
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -10,6 +10,8 @@
 		<axis2.version>1.8.0</axis2.version>
 		<log4j.version>1.2.17</log4j.version>
 		<jdom.version>2.0.6.1</jdom.version>
+		<mockito.version>4.11.0</mockito.version>
+		<junit.version>5.11.4</junit.version>
 	</properties>
 
 	<dependencies>
@@ -52,5 +54,55 @@
 			<artifactId>log4j</artifactId>
 			<version>${log4j.version}</version>
 		</dependency>
+		
+		<dependency>
+	  		<groupId>org.junit.jupiter</groupId>
+	    	<artifactId>junit-jupiter</artifactId>
+	    	<version>${junit.version}</version>
+	    	<scope>test</scope>
+			</dependency>
+		<dependency>
+		    <groupId>org.mockito</groupId>
+		    <artifactId>mockito-core</artifactId>
+		    <version>${mockito.version}</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.mockito</groupId>
+		    <artifactId>mockito-inline</artifactId>
+		    <version>${mockito.version}</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.mockito</groupId>
+		    <artifactId>mockito-inline</artifactId>
+		    <version>${mockito.version}</version>
+    		<scope>test</scope>
+		</dependency>
 	</dependencies>
+	<build>
+	    <resources>
+	        <resource>
+	            <directory>src/main/resources</directory>
+	        </resource>
+	        <resource>
+	            <directory>src/test/resources</directory>
+	        </resource>
+	    </resources>
+	     <plugins>
+        <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.12</version> <!-- Use a versão mais recente -->
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>prepare-agent</goal>
+                        <goal>report</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+	</build>
 </project>

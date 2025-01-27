@@ -109,7 +109,7 @@ public abstract class ObjectParser {
            Object[] lista = (Object[]) obj;
            if (lista.length > 0) {
               String tmp = Arrays.toString(lista);
-              return tmp.replace("[","").replace("]","");
+              return tmp.replace("[", "").replace("]", "").replace(" ", "");
            }
         }
 

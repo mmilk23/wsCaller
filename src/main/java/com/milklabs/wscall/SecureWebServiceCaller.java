@@ -23,9 +23,9 @@ import org.apache.log4j.Logger;
 
 import com.milklabs.wscall.util.StringUtils;
 
-
 /**
- * Implements generic calls to any webservice, whitout generate stubs o any other bullshit
+ * Implements generic calls to any webservice, whitout generate stubs o any
+ * other bullshit
  * 
  * @author mmilk23
  * 
@@ -52,6 +52,19 @@ public class SecureWebServiceCaller {
 		this.namespace = namespace;
 		this.prefixo = prefixo;
 	}
+	
+
+	/**
+	 * Método protegido que pode ser sobrescrito em testes para substituir a criação
+	 * do ServiceClientWrapper.
+	 */
+	protected ServiceClientWrapper createServiceClientWrapper() {
+		try {
+			return new ServiceClientWrapper();
+		} catch (Exception e) {
+			throw new RuntimeException("Erro ao criar ServiceClientWrapper", e);
+		}
+	}
 
 	/**
 	 * Chamada sincrona a um Web Service
@@ -59,19 +72,14 @@ public class SecureWebServiceCaller {
 	 * @param metodo
 	 * @param params
 	 * @return OMElement
-	 */
-	/**
-	 * Chamada sincrona a um Web Service
-	 * 
-	 * @param metodo
-	 * @param params
-	 * @return OMElement
-	 * @throws SecureWebServiceException
+	 * @throws WebServiceException
 	 */
 	@SuppressWarnings("rawtypes")
-	private OMElement chamarSincronoWS(String metodo, Map<String, ?> params, String wsUsername, String wsPassword)
+	protected OMElement chamarSincronoWS(String metodo, Map<String, ?> params, String wsUsername, String wsPassword)
 			throws WebServiceException {
-		log.debug("[chamarSincronoWS] chamado, EndpointReference: [" + urlServico + "] namespace: [" + namespace + "] prefixo: [" + prefixo + "] metodo: [" + metodo + "] params: [" + params + "] username: [" + wsUsername + "] password: [" + wsPassword + "]");
+		log.debug("[chamarSincronoWS] chamado, EndpointReference: [" + urlServico + "] namespace: [" + namespace
+				+ "] prefixo: [" + prefixo + "] metodo: [" + metodo + "] params: [" + params + "] username: ["
+				+ wsUsername + "] password: [" + wsPassword + "]");
 
 		OMFactory fac = OMAbstractFactory.getOMFactory();
 		OMNamespace omNs = fac.createOMNamespace(namespace, prefixo);
@@ -128,6 +136,7 @@ public class SecureWebServiceCaller {
 
 		// especifica opcoes de envio
 		Options options = new Options();
+		options.setSoapVersionURI(Constants.URI_SOAP12_ENV);
 		options.setTo(urlServico);
 		options.setTransportInProtocol(Constants.TRANSPORT_HTTP);
 		options.setProperty(HTTPConstants.MC_ACCEPT_GZIP, Boolean.FALSE);
@@ -148,12 +157,14 @@ public class SecureWebServiceCaller {
 		try {
 			sender = new ServiceClient();
 			// criando headers de seguranca
-			OMNamespace omNsWsse = fac.createOMNamespace("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "wsse");
+			OMNamespace omNsWsse = fac.createOMNamespace(
+					"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "wsse");
 			SOAPFactory soap12Factory = OMAbstractFactory.getSOAP12Factory();
 
 			if (null != wsUsername && null != wsPassword) {
-				log.debug("[chamarSincronoWS] adicionando Username [" + wsUsername + "] password [" + wsPassword+ "] ao header");
-				
+				log.debug("[chamarSincronoWS] adicionando Username [" + wsUsername + "] password [" + wsPassword
+						+ "] ao header");
+
 				SOAPHeaderBlock soapHeaderBlock = soap12Factory.createSOAPHeaderBlock("Security", omNsWsse);
 				soapHeaderBlock.setMustUnderstand(true);
 				OMElement usernameTokenElement = fac.createOMElement("UsernameToken", omNsWsse);
