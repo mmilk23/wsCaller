@@ -9,7 +9,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>Cp1252</project.build.sourceEncoding>
-		<axis2.version>1.8.0</axis2.version>
+		<axis2.version>2.0.0</axis2.version>
 		<log4j.version>1.2.17</log4j.version>
 		<jdom.version>2.0.6.1</jdom.version>
 		<mockito.version>4.11.0</mockito.version>
