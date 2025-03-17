@@ -1,103 +1,145 @@
 package com.milklabs.exemplo;
 
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Properties;
 
+import org.jdom2.JDOMException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.milklabs.exemplo.vo.CepVO;
+import com.milklabs.exemplo.vo.CountryCurrencyVO;
 import com.milklabs.wscall.SecureWebServiceCaller;
 
 class ExemploChamadaWSTest {
 
     @BeforeEach
     void setup() {
-        // Configuração inicial
+        
     }
 
     @Test
     void testMainSuccess() throws Exception {
-        // Simulação manual do comportamento de SecureWebServiceCaller
         SecureWebServiceCaller mockWsCaller = mock(SecureWebServiceCaller.class);
-        when(mockWsCaller.chamarWebService(eq("consultaCEP"), anyMap(), isNull(), isNull()))
-                .thenReturn("<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
-                        "<soap:Body>" +
-                        "<ns2:consultaCEPResponse xmlns:ns2=\"http://cliente.bean.master.sigep.bsb.correios.com.br/\">" +
-                        "<return>" +
-                        "<bairro>Ipanema</bairro>" +
-                        "<cep>22410030</cep>" +
-                        "<cidade>Rio de Janeiro</cidade>" +
-                        "<complemento2></complemento2>" +
-                        "<end>Praça Nossa Senhora da Paz</end>" +
-                        "<uf>RJ</uf>" +
-                        "</return>" +
-                        "</ns2:consultaCEPResponse>" +
-                        "</soap:Body>" +
-                        "</soap:Envelope>");
+        when(mockWsCaller.chamarWebService(eq("CountryCurrency"), anyMap(), isNull(), isNull()))
+                .thenReturn("<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+	                		+ "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\r\n"
+	                		+ "  <soap:Body>\r\n"
+	                		+ "    <m:CountryCurrencyResponse xmlns:m=\"http://www.oorsprong.org/websamples.countryinfo\">\r\n"
+	                		+ "      <m:CountryCurrencyResult>\r\n"
+	                		+ "        <m:sISOCode>USD</m:sISOCode>\r\n"
+	                		+ "        <m:sName>Dollars</m:sName>\r\n"
+	                		+ "      </m:CountryCurrencyResult>\r\n"
+	                		+ "    </m:CountryCurrencyResponse>\r\n"
+	                		+ "  </soap:Body>\r\n"
+	                		+ "</soap:Envelope>");
 
-        // Chamando o método principal
         ExemploChamadaWS.main(new String[]{});
     }
 
     @Test
     void testParseResponseValidXML() throws Exception {
-    	String xmlResponse = "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
-                "<soap:Body>" +
-                "<ns2:consultaCEPResponse xmlns:ns2=\"http://cliente.bean.master.sigep.bsb.correios.com.br/\">" +
-                "<return>" +
-                "<bairro>Ipanema</bairro>" +
-                "<cep>22410030</cep>" +
-                "<cidade>Rio de Janeiro</cidade>" +
-                "<complemento2></complemento2>" +
-                "<end>Praça Nossa Senhora da Paz</end>" +
-                "<uf>RJ</uf>" +
-                "</return>" +
-                "</ns2:consultaCEPResponse>" +
-                "</soap:Body>" +
-                "</soap:Envelope>";
+    	String xmlResponse = ("<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+			        		+ "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\r\n"
+			        		+ "  <soap:Body>\r\n"
+			        		+ "    <m:CountryCurrencyResponse xmlns:m=\"http://www.oorsprong.org/websamples.countryinfo\">\r\n"
+			        		+ "      <m:CountryCurrencyResult>\r\n"
+			        		+ "        <m:sISOCode>USD</m:sISOCode>\r\n"
+			        		+ "        <m:sName>Dollars</m:sName>\r\n"
+			        		+ "      </m:CountryCurrencyResult>\r\n"
+			        		+ "    </m:CountryCurrencyResponse>\r\n"
+			        		+ "  </soap:Body>\r\n"
+			        		+ "</soap:Envelope>");
 
         Method method = ExemploChamadaWS.class.getDeclaredMethod("parseResponse", String.class);
         method.setAccessible(true);
 
-        CepVO result = (CepVO) method.invoke(null, xmlResponse);
+        CountryCurrencyVO result = (CountryCurrencyVO) method.invoke(null, xmlResponse);
 
         assertNotNull(result);
-        assertEquals("Ipanema", result.getBairro());
-        assertEquals("22410030", result.getCep());
-        assertEquals("Rio de Janeiro", result.getCidade());
-        assertEquals("Praça Nossa Senhora da Paz", result.getEnd());
-        assertEquals("RJ", result.getUf());
+        assertEquals("USD", result.getSISOCode());
+        assertEquals("Dollars", result.getSName());
+     
+    }
+    
+    @Test
+    void testParseResponseWithEmptyXML() throws Exception {
+        String emptyXml = "";
+        Method method = ExemploChamadaWS.class.getDeclaredMethod("parseResponse", String.class);
+        method.setAccessible(true);
+        Exception exception = assertThrows(InvocationTargetException.class, () -> method.invoke(null, emptyXml));
+
+        Throwable actualCause = exception.getCause();
+        assertNotNull(actualCause);
+        assertTrue(actualCause instanceof RuntimeException);
+        assertEquals("Error: Empty XML response", actualCause.getMessage());
+    }
+    
+    @Test
+    void testParseResponseWithMalformedXML() throws Exception {
+        String malformedXml = "<soap:Envelope><soap:Body><m:CountryCurrencyResult>"; // Invalid XML
+
+        Method method = ExemploChamadaWS.class.getDeclaredMethod("parseResponse", String.class);
+        method.setAccessible(true);
+
+        Exception exception = assertThrows(InvocationTargetException.class, () -> method.invoke(null, malformedXml));
+
+        Throwable actualCause = exception.getCause();
+        assertNotNull(actualCause);
+        assertTrue(actualCause instanceof RuntimeException);
+        assertTrue(actualCause.getMessage().contains("Error parsing XML"));
     }
 
     @Test
-    void testLoadValidFile() throws Exception {
-    	 String path = "src/test/resources/log4j.properties";
-    	    Properties props = new Properties();
+    void testParseResponseWithIOException() throws Exception {
+        String malformedXml = "INVALID_XML"; // Simulating an I/O error
 
-    	    try (InputStream inputStream = new FileInputStream(path)) {
-    	        props.load(inputStream);
-    	    }
+        Method method = ExemploChamadaWS.class.getDeclaredMethod("parseResponse", String.class);
+        method.setAccessible(true);
 
-    	    assertEquals("INFO, stdout", props.getProperty("log4j.rootLogger"));
+        Exception exception = assertThrows(InvocationTargetException.class, () -> method.invoke(null, malformedXml));
+
+        Throwable actualCause = exception.getCause();
+        System.out.println("Actual exception type: " + (actualCause != null ? actualCause.getClass().getName() : "null"));
+        assertNotNull(actualCause);
+        assertTrue(
+            actualCause instanceof RuntimeException ||
+            actualCause instanceof IOException ||
+            actualCause instanceof JDOMException,
+            "Unexpected exception type: " + actualCause.getClass().getName()
+        );
+
+        assertTrue(actualCause.getMessage().contains("Error parsing XML"));
     }
-
+    
     @Test
-    void testLoadInvalidFile() throws Exception {
-        Method method = ExemploChamadaWS.class.getDeclaredMethod("load", String.class);
-        method.setAccessible(true); // Tornar o método acessível
+    void testParseResponseWithEmptyContentXML() throws Exception {
+        String emptyContentXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                + "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
+                + "  <soap:Body>\n"
+                + "  </soap:Body>\n"
+                + "</soap:Envelope>";
 
-        assertThrows(Exception.class, () -> method.invoke(null, "invalid"));
+        Method method = ExemploChamadaWS.class.getDeclaredMethod("parseResponse", String.class);
+        method.setAccessible(true);
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            method.invoke(null, emptyContentXml);
+        });
+
+        assertEquals("Error: XML hasn't any content", exception.getMessage());
     }
+
+
+
 }

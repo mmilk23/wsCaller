@@ -2,22 +2,20 @@ package com.milklabs.exemplo;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
+
+import javax.xml.XMLConstants;
 
 import org.apache.axis2.addressing.EndpointReference;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.PropertyConfigurator;
 import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
-import com.milklabs.exemplo.vo.CepVO;
+import com.milklabs.exemplo.vo.CountryCurrencyVO;
 import com.milklabs.wscall.SecureWebServiceCaller;
 import com.milklabs.wscall.WebServiceException;
 
@@ -25,127 +23,93 @@ import com.milklabs.wscall.WebServiceException;
  * @author mmilk23
  * 
  *         Example of use look at main method: just send a Map with parameters
- *         and get response In this example, we use a WS to get a adress based
- *         on brazilian ZIP codes
- * 
+ *         and get response In this example, we use a WS to get currency of a
+ *         country
  * 
  *         Request example: WSDL:
- *         https://apps.correios.com.br/SigepMasterJPA/AtendeClienteService/AtendeCliente?wsdl
+ *         http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso?wsdl
  *         ENDPOINT:
- *         https://apps.correios.com.br/SigepMasterJPA/AtendeClienteService/AtendeCliente
+ *         http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso
  * 
- *         REQUEST: <soapenv:Envelope xmlns:soapenv=
- *         "http://schemas.xmlsoap.org/soap/envelope/" xmlns:cli=
- *         "http://cliente.bean.master.sigep.bsb.correios.com.br/">
- *         <soapenv:Header/> <soapenv:Body> <cli:consultaCEP> <!--Optional:-->
- *         <cep>22410030</cep> </cli:consultaCEP> </soapenv:Body>
- *         </soapenv:Envelope>
+ *         REQUEST: 
+ *         <?xml version="1.0" encoding="utf-8"?>
+ *         <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+ *         	<soap:Body>
+ *         	<CountryCurrency xmlns="http://www.oorsprong.org/websamples.countryinfo">
+ *         		<sCountryISOCode>US</sCountryISOCode> 
+ *         	</CountryCurrency> 
+ *         	</soap:Body>
+ *         </soap:Envelope>
  * 
- *         RESPONSE: <soap:Envelope xmlns:soap=
- *         "http://schemas.xmlsoap.org/soap/envelope/"> <soap:Body>
- *         <ns2:consultaCEPResponse xmlns:ns2=
- *         "http://cliente.bean.master.sigep.bsb.correios.com.br/"> <return>
- *         <bairro>Ipanema</bairro> <cep>22410030</cep> <cidade>Rio de
- *         Janeiro</cidade> <complemento2/> <end>Praça Nossa Senhora da
- *         Paz</end> <uf>RJ</uf> </return> </ns2:consultaCEPResponse>
- *         </soap:Body> </soap:Envelope> }
+ *         RESPONSE:
+ *         <?xml version="1.0" encoding="utf-8"?> 
+ *         <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+ *	          <soap:Body>
+ *	          	<m:CountryCurrencyResponse xmlns:m="http://www.oorsprong.org/websamples.countryinfo">
+ *	          	<m:CountryCurrencyResult> 
+ *					<m:sISOCode>USD</m:sISOCode>
+ *	          		<m:sName>Dollars</m:sName> 
+ *	          	</m:CountryCurrencyResult>
+ *	          </m:CountryCurrencyResponse> 
+ *	          </soap:Body> 
+ *         </soap:Envelope>
  */
 public class ExemploChamadaWS {
 
 	public static void main(String[] args) {
 
-		startLog();
-
-		SecureWebServiceCaller wsCaller = new SecureWebServiceCaller(
-				new EndpointReference("https://apps.correios.com.br/SigepMasterJPA/AtendeClienteService/AtendeCliente"),
-				"http://cliente.bean.master.sigep.bsb.correios.com.br/", "cli");
+		SecureWebServiceCaller wsCaller = new SecureWebServiceCaller(new EndpointReference("http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso"),"http://www.oorsprong.org/websamples.countryinfo", "xs");
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("cep", "22410-030");
+		params.put("sCountryISOCode", "BR");
 
 		try {
-			String xmlOutput = wsCaller.chamarWebService("consultaCEP", params, null, null);
-					
-			//Unfortunately, the service has been showing constant errors. As a proof of concept, I mocked up the response.
-		    xmlOutput = "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-						 + "<soap:Body>"
-						 + "   <ns2:consultaCEPResponse xmlns:ns2=\"http://cliente.bean.master.sigep.bsb.correios.com.br/\">"
-						 + "      <return>"
-						 + "         <bairro>Ipanema</bairro>"
-						 + "         <cep>22410030</cep>"
-						 + "         <cidade>Rio de Janeiro</cidade>"
-						 + "         <complemento2/>"
-						 + "         <end>Praça Nossa Senhora da Paz</end>"
-						 + "         <uf>RJ</uf>"
-						 + "      </return>"
-						 + "   </ns2:consultaCEPResponse>"
-						 + "</soap:Body>"
-						 + "</soap:Envelope>";	
-			
-			
+			String xmlOutput = wsCaller.chamarWebService("CountryCurrency", params, null, null);
+			System.out.println("xmlOutput: [" + xmlOutput + "]");
 			System.out.println(parseResponse(xmlOutput).toString());
 		} catch (WebServiceException e) {
 			e.printStackTrace();
 		}
-
 	}
 
-	private static CepVO parseResponse(String xmlOutput) {
-		CepVO vo = new CepVO();
+	private static CountryCurrencyVO parseResponse(String xmlOutput) {
+		if (xmlOutput == null || xmlOutput.trim().isEmpty()) {
+	        throw new RuntimeException("Error: Empty XML response");
+	    }
+		
+		CountryCurrencyVO vo = new CountryCurrencyVO();
 		SAXBuilder builder = new SAXBuilder();
+		builder.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 		Document doc;
 		try {
 			doc = builder.build(new ByteArrayInputStream(xmlOutput.getBytes("UTF-8")));
-
-			Iterator<Content> obj = (Iterator<Content>) doc.getDescendants();
+			Iterator<Content> obj = doc.getDescendants();
+			if (!obj.hasNext()) {
+				throw new RuntimeException("Error: XML hasn't any content");
+			}
+	        boolean hasValidElement = false;
 			while (obj.hasNext()) {
 				Object xmlElement = obj.next();
-				if (xmlElement instanceof org.jdom2.Element) {
-					Element el = (Element) xmlElement;
-					switch (el.getName()) {
-					case "bairro":
-						vo.setBairro(el.getValue());
-					case "cep":
-						vo.setCep(el.getValue());
-					case "cidade":
-						vo.setCidade(el.getValue());
-					case "complemento2":
-						vo.setComplemento2(el.getValue());
-					case "end":
-						vo.setEnd(el.getValue());
-					case "uf":
-						vo.setUf(el.getValue());
-					default:
-						break;
-					}
-				}
+	            if (xmlElement instanceof org.jdom2.Element) {
+	                hasValidElement = true;
+	                Element el = (Element) xmlElement;
+	                switch (el.getName()) {
+	                    case "sISOCode":
+	                        vo.setSISOCode(el.getValue());
+	                        break;
+	                    case "sName":
+	                        vo.setSName(el.getValue());
+	                        break;
+	                    default:
+	                        break;
+	                }
+	            }
 			}
+			if (!hasValidElement) {
+	            throw new RuntimeException("Error: XML hasn't any content");
+	        }
 		} catch (JDOMException | IOException e) {
-			e.printStackTrace();
+			  throw new RuntimeException("Error parsing XML", e);
 		}
 		return vo;
 	}
-
-	private static void startLog() {
-
-		Properties myProps;
-		try {
-			myProps = load("log4j");
-			if (myProps.keys() != null) {
-				PropertyConfigurator.configure(myProps);
-			} else {
-				System.out.println("WARNING: log4j.properties empty, loading BasicConfigurator...");
-				BasicConfigurator.configure();
-			}
-		} catch (Exception e) {
-			BasicConfigurator.configure();
-		}
-	}
-
-	private static Properties load(String propsName) throws Exception {
-		Properties props = new Properties();
-		URL url = ClassLoader.getSystemResource(propsName);
-		props.load(url.openStream());
-		return props;
-	}
-
 }

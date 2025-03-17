@@ -1,0 +1,131 @@
+<configuration>
+    <!-- Configuração global -->
+    <contextName>logback</contextName>
+    
+    <property name="LOG_PATH" value="logs" />
+
+    <!-- Definir System Properties para garantir o uso do SLF4J -->
+    <systemProperty name="org.apache.commons.logging.Log" value="org.apache.commons.logging.impl.SLF4JLogFactory" />
+
+    <!-- Root Logger -->
+    <root level="info">
+        <appender-ref ref="WCALLER" />
+        <appender-ref ref="APACHE" />
+        <appender-ref ref="AXIS2" />
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="HTTP_CONSOLE" />
+    </root>
+
+    <!-- Console Logger Padrão -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>[%c] %-5level %d{ISO8601} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Console Logger para HTTP Client -->
+    <appender name="HTTP_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>[HTTP] %-5level %d{ISO8601} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Appender para logs do WebService Caller -->
+    <appender name="WCALLER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/wsCaller.log</file>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>[%c] %-5level %d{ISO8601} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/wsCaller.%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>5120KB</maxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <!-- Appender para logs do Apache HTTP Client -->
+    <appender name="APACHE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/apache.log</file>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>[%c] %-5level %d{ISO8601} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/apache.%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>5120KB</maxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <!-- Appender para logs do Axis2 -->
+    <appender name="AXIS2" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/axis2.log</file>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>[%c] %-5level %d{ISO8601} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/axis2.%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>5120KB</maxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <!-- Loggers específicos -->
+
+    <!-- Logs para chamadas WS -->
+    <logger name="wcaller" level="DEBUG" additivity="false">
+        <appender-ref ref="WCALLER" />
+    </logger>
+
+    <logger name="com.milklabs" level="DEBUG" additivity="false">
+        <appender-ref ref="WCALLER" />
+    </logger>
+
+    <!-- Logs do Apache HTTP Client -->
+    <logger name="org.apache.commons" level="INFO" additivity="false">
+        <appender-ref ref="APACHE" />
+    </logger>
+
+    <logger name="apache" level="DEBUG" additivity="false">
+        <appender-ref ref="APACHE" />
+    </logger>
+
+    <!-- Captura do tráfego HTTP (requisição e resposta) -->
+    <logger name="org.apache.http.wire" level="DEBUG" additivity="false">
+        <appender-ref ref="APACHE" />
+        <appender-ref ref="HTTP_CONSOLE" />
+    </logger>
+
+    <!-- Captura de cabeçalhos HTTP -->
+    <logger name="org.apache.http.headers" level="DEBUG" additivity="false">
+        <appender-ref ref="APACHE" />
+        <appender-ref ref="HTTP_CONSOLE" />
+    </logger>
+
+    <!-- Logs detalhados do Axis2 -->
+    <logger name="org.apache.axis2" level="DEBUG" additivity="false">
+        <appender-ref ref="AXIS2" />
+    </logger>
+
+    <logger name="org.apache.axiom" level="DEBUG" additivity="false">
+        <appender-ref ref="AXIS2" />
+    </logger>
+
+    <logger name="axis2" level="DEBUG" additivity="false">
+        <appender-ref ref="AXIS2" />
+    </logger>
+
+</configuration>

@@ -8,17 +8,20 @@ public class ServiceClientWrapper {
 
     private final ServiceClient serviceClient;
 
-    // Construtor padrão
+    // Default constructor (production use)
     public ServiceClientWrapper() throws AxisFault {
         this.serviceClient = new ServiceClient();
     }
 
-    // Método sendReceive encapsula a lógica de ServiceClient
+    // Constructor for testing (dependency injection)
+    public ServiceClientWrapper(ServiceClient serviceClient) {
+        this.serviceClient = serviceClient;
+    }
+
     public OMElement sendReceive(OMElement request) throws AxisFault {
         return serviceClient.sendReceive(request);
     }
 
-    // Métodos auxiliares para limpeza
     public void cleanup() throws AxisFault {
         serviceClient.cleanup();
     }

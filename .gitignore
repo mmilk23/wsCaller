@@ -7,3 +7,4 @@ logs/wsCaller.log
 .settings/org.eclipse.jdt.core.prefs
 .settings/org.eclipse.jdt.core.prefs
 .settings/org.eclipse.jdt.core.prefs
+/logs/
