@@ -4,13 +4,16 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -20,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import com.milklabs.exemplo.vo.CountryCurrencyVO;
 import com.milklabs.wscall.SecureWebServiceCaller;
+import com.milklabs.wscall.WebServiceException;
 
 class ExemploChamadaWSTest {
 
@@ -126,20 +130,47 @@ class ExemploChamadaWSTest {
     void testParseResponseWithEmptyContentXML() throws Exception {
         String emptyContentXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
-                + "  <soap:Body>\n"
-                + "  </soap:Body>\n"
+                + "  <soap:Body></soap:Body>\n"
                 + "</soap:Envelope>";
 
         Method method = ExemploChamadaWS.class.getDeclaredMethod("parseResponse", String.class);
         method.setAccessible(true);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        InvocationTargetException exception = assertThrows(InvocationTargetException.class, () -> {
             method.invoke(null, emptyContentXml);
         });
 
-        assertEquals("Error: XML hasn't any content", exception.getMessage());
+        Throwable actualCause = exception.getTargetException();
+        assertTrue(actualCause instanceof RuntimeException);
+        assertEquals("Error: XML hasn't any content", actualCause.getMessage());
+       
+        
     }
+    
+    @Test
+    void testMainWithWebServiceException() {
 
+        SecureWebServiceCaller mockWsCaller = mock(SecureWebServiceCaller.class);
+
+        try {
+            when(mockWsCaller.chamarWebService(any(), any(), any(), any()))
+                    .thenThrow(new WebServiceException("Simulated WebServiceException"));
+        } catch (WebServiceException e) {
+            throw new RuntimeException("Mock setup failed", e);
+        }
+
+        ExemploChamadaWS.setWsCaller(mockWsCaller);
+        ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+        PrintStream originalErr = System.err;
+        System.setErr(new PrintStream(errContent));
+        ExemploChamadaWS.main(new String[]{});
+        System.setErr(originalErr);
+
+        String output = errContent.toString();
+        System.out.println("Captured System.err:\n" + output);
+        assertTrue(output.contains("WebServiceException"),
+                "Expected WebServiceException stack trace to be printed!");
+    }
 
 
 }

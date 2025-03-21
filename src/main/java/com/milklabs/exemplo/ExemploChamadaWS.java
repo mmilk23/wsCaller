@@ -2,14 +2,13 @@ package com.milklabs.exemplo;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.xml.XMLConstants;
 
 import org.apache.axis2.addressing.EndpointReference;
-import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -55,10 +54,25 @@ import com.milklabs.wscall.WebServiceException;
  *         </soap:Envelope>
  */
 public class ExemploChamadaWS {
+	
+    private static SecureWebServiceCaller wsCaller;
 
+    public static void setWsCaller(SecureWebServiceCaller wsCaller) {
+        ExemploChamadaWS.wsCaller = wsCaller;
+    }
+
+	
+    
 	public static void main(String[] args) {
 
-		SecureWebServiceCaller wsCaller = new SecureWebServiceCaller(new EndpointReference("http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso"),"http://www.oorsprong.org/websamples.countryinfo", "xs");
+		if (wsCaller == null) {
+            wsCaller = new SecureWebServiceCaller(
+                new EndpointReference("http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso"),
+                "http://www.oorsprong.org/websamples.countryinfo",
+                "xs"
+            );
+        }
+		
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("sCountryISOCode", "BR");
 
@@ -71,45 +85,55 @@ public class ExemploChamadaWS {
 		}
 	}
 
+	
 	private static CountryCurrencyVO parseResponse(String xmlOutput) {
-		if (xmlOutput == null || xmlOutput.trim().isEmpty()) {
+	    if (xmlOutput == null || xmlOutput.trim().isEmpty()) {
 	        throw new RuntimeException("Error: Empty XML response");
 	    }
-		
-		CountryCurrencyVO vo = new CountryCurrencyVO();
-		SAXBuilder builder = new SAXBuilder();
-		builder.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-		Document doc;
-		try {
-			doc = builder.build(new ByteArrayInputStream(xmlOutput.getBytes("UTF-8")));
-			Iterator<Content> obj = doc.getDescendants();
-			if (!obj.hasNext()) {
-				throw new RuntimeException("Error: XML hasn't any content");
-			}
-	        boolean hasValidElement = false;
-			while (obj.hasNext()) {
-				Object xmlElement = obj.next();
-	            if (xmlElement instanceof org.jdom2.Element) {
-	                hasValidElement = true;
-	                Element el = (Element) xmlElement;
-	                switch (el.getName()) {
-	                    case "sISOCode":
-	                        vo.setSISOCode(el.getValue());
-	                        break;
-	                    case "sName":
-	                        vo.setSName(el.getValue());
-	                        break;
-	                    default:
-	                        break;
-	                }
-	            }
-			}
-			if (!hasValidElement) {
+
+	    CountryCurrencyVO vo = new CountryCurrencyVO();
+	    SAXBuilder builder = new SAXBuilder();
+	    builder.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+
+	    try {
+	        Document doc = builder.build(new ByteArrayInputStream(xmlOutput.getBytes(StandardCharsets.UTF_8)));
+	        Element rootElement = doc.getRootElement();
+
+	        // If the response is wrapped in <soap:Envelope>, extract the <soap:Body>
+	        Element body = rootElement.getChild("Body", rootElement.getNamespace());
+	        Element contentElement = (body != null) ? body : rootElement;
+
+	        boolean hasValidElement = extractCurrencyInfo(contentElement, vo);
+	        if (!hasValidElement) {
 	            throw new RuntimeException("Error: XML hasn't any content");
 	        }
-		} catch (JDOMException | IOException e) {
-			  throw new RuntimeException("Error parsing XML", e);
-		}
-		return vo;
+
+	    } catch (JDOMException | IOException e) {
+	        throw new RuntimeException("Error parsing XML", e);
+	    }
+
+	    return vo;
+	}
+
+	/**
+	 * Recursively searches for `sISOCode` and `sName` in any XML structure.
+	 */
+	private static boolean extractCurrencyInfo(Element element, CountryCurrencyVO vo) {
+	    boolean found = false;
+	    for (Element child : element.getChildren()) {
+	        switch (child.getName()) {
+	            case "sISOCode":
+	                vo.setSISOCode(child.getValue());
+	                found = true;
+	                break;
+	            case "sName":
+	                vo.setSName(child.getValue());
+	                found = true;
+	                break;
+	            default:
+	                found |= extractCurrencyInfo(child, vo); // Recursively look inside
+	        }
+	    }
+	    return found;
 	}
 }

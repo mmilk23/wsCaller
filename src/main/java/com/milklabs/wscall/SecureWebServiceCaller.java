@@ -50,18 +50,6 @@ public class SecureWebServiceCaller {
 		this.prefixo = prefixo;
 	}
 
-	/**
-	 * Método protegido que pode ser sobrescrito em testes para substituir a criação
-	 * do ServiceClientWrapper.
-	 */
-	protected ServiceClientWrapper createServiceClientWrapper() {
-		try {
-			return new ServiceClientWrapper();
-		} catch (Exception e) {
-			throw new RuntimeException("Erro ao criar ServiceClientWrapper", e);
-		}
-	}
-
 	/*
 	 * adicionando headers http if (username != null) { List<Header> headers = new
 	 * ArrayList<Header>(); headers.add(new Header("chaveDelegada", username));
@@ -100,8 +88,7 @@ public class SecureWebServiceCaller {
 					arg.addChild(factory.createOMText(arg, value));
 				}
 
-				if (entry.getValue().getClass().isInstance(new java.util.HashMap())
-						|| entry.getValue().getClass().isInstance(new java.util.Hashtable())) {
+				if (entry.getValue().getClass().isInstance(new java.util.HashMap()) || entry.getValue().getClass().isInstance(new java.util.Hashtable())) {
 					OMElement arg2 = factory.createOMElement(entry.getKey(), null);
 					@SuppressWarnings("unchecked")
 					Map<String, Object> paramList = (Map<String, Object>) entry.getValue();
@@ -216,5 +203,5 @@ public class SecureWebServiceCaller {
 			return result.toString();
 		}
 	}
-
+	
 }

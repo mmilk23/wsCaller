@@ -16,6 +16,7 @@
 		<mockito.version>4.11.0</mockito.version>
 		<junit.version>5.12.1</junit.version>
 		<lombok.version>1.18.36</lombok.version>
+		<powermock.version>2.0.9</powermock.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -97,6 +98,19 @@
 			<version>${mockito.version}</version>
 			<scope>test</scope>
 		</dependency>
+		
+		<dependency>
+		    <groupId>org.powermock</groupId>
+		    <artifactId>powermock-module-junit4</artifactId>
+		    <version>${powermock.version}</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.powermock</groupId>
+		    <artifactId>powermock-api-mockito2</artifactId>
+		    <version>${powermock.version}</version>
+		    <scope>test</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources>
@@ -125,6 +139,7 @@
 					<includes>
 						<include>**/*Test.java</include>
 					</includes>
+					<argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
