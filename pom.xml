@@ -11,7 +11,7 @@
 		<project.build.sourceEncoding>Cp1252</project.build.sourceEncoding>
 		<axis2.version>2.0.0</axis2.version>
 		<slf4j.version>2.0.17</slf4j.version>
-		<logback.version>1.5.17</logback.version>
+		<logback.version>1.5.18</logback.version>
 		<jdom.version>2.0.6.1</jdom.version>
 		<mockito.version>4.11.0</mockito.version>
 		<junit.version>5.12.1</junit.version>
