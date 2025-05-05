@@ -15,7 +15,7 @@
 		<jdom.version>2.0.6.1</jdom.version>
 		<mockito.version>4.11.0</mockito.version>
 		<junit.version>5.12.2</junit.version>
-		<lombok.version>1.18.36</lombok.version>
+		<lombok.version>1.18.38</lombok.version>
 		<powermock.version>2.0.9</powermock.version>
 	</properties>
 	<dependencies>
