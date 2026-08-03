@@ -3,6 +3,7 @@ package com.milklabs.wscall;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -204,6 +205,48 @@ class SecureWebServiceCallerTest {
 	}
 
 	@Test
+	void testChamarWebServiceWithPartialSecurityCredentialsDoesNotAddHeader() throws Exception {
+		OMFactory factory = OMAbstractFactory.getOMFactory();
+		OMElement dummyElement = factory.createOMElement("response", null);
+		dummyElement.addChild(factory.createOMText(dummyElement, "OK"));
+
+		try (MockedConstruction<ServiceClient> mocked = Mockito.mockConstruction(ServiceClient.class,
+				(mock, context) -> when(mock.sendReceive(any(OMElement.class))).thenReturn(dummyElement))) {
+
+			SecureWebServiceCaller caller = new SecureWebServiceCaller(dummyEndpoint, "http://dummy.namespace",
+					"dummyPrefix");
+
+			String result = caller.chamarWebService("dummyMethod", Collections.emptyMap(), "user", null);
+			assertEquals(dummyElement.toString(), result);
+
+			ServiceClient created = mocked.constructed().get(0);
+			verify(created).cleanup();
+			verify(created).cleanupTransport();
+		}
+	}
+
+	@Test
+	void testChamarWebServiceWithNullParams() throws Exception {
+		OMFactory factory = OMAbstractFactory.getOMFactory();
+		OMElement dummyElement = factory.createOMElement("response", null);
+		dummyElement.addChild(factory.createOMText(dummyElement, "OK"));
+
+		try (MockedConstruction<ServiceClient> mocked = Mockito.mockConstruction(ServiceClient.class,
+				(mock, context) -> when(mock.sendReceive(any(OMElement.class))).thenReturn(dummyElement))) {
+
+			SecureWebServiceCaller caller = new SecureWebServiceCaller(dummyEndpoint, "http://dummy.namespace",
+					"dummyPrefix");
+
+			String result = caller.chamarWebService("dummyMethod", null, null, null);
+			assertEquals(dummyElement.toString(), result);
+
+			ServiceClient created = mocked.constructed().get(0);
+			verify(created).cleanup();
+			verify(created).cleanupTransport();
+		}
+	}
+
+	@Test
 	void testChamarWebServiceAxisFaultDetailed() throws Exception {
 		OMFactory factory = OMAbstractFactory.getOMFactory();
 		QName faultCode = new QName("faultCode");
@@ -240,6 +283,27 @@ class SecureWebServiceCallerTest {
 	}
 
 	@Test
+	void testChamarWebServiceAxisFaultWithoutDetails() throws Exception {
+		AxisFault axisFault = new AxisFault("AxisFault occurred");
+
+		try (MockedConstruction<ServiceClient> mocked = Mockito.mockConstruction(ServiceClient.class,
+				(mock, context) -> when(mock.sendReceive(any(OMElement.class))).thenThrow(axisFault))) {
+
+			SecureWebServiceCaller caller = new SecureWebServiceCaller(dummyEndpoint, "http://dummy.namespace",
+					"dummyPrefix");
+
+			WebServiceException ex = assertThrows(WebServiceException.class,
+					() -> caller.chamarWebService("dummyMethod", Collections.emptyMap(), null, null));
+
+			assertEquals(axisFault, ex.getCause());
+
+			ServiceClient created = mocked.constructed().get(0);
+			verify(created).cleanup();
+			verify(created).cleanupTransport();
+		}
+	}
+
+	@Test
 	void testChamarWebServiceGenericException() throws Exception {
 		RuntimeException genericException = new RuntimeException("Generic error");
 
@@ -257,6 +321,26 @@ class SecureWebServiceCallerTest {
 			ServiceClient created = mocked.constructed().get(0);
 			verify(created).cleanup();
 			verify(created).cleanupTransport();
+		}
+	}
+
+	@Test
+	void testServiceClientConstructionFailureLeavesSenderNull() {
+		RuntimeException constructionFailure = new RuntimeException("Construction failed");
+
+		try (MockedConstruction<ServiceClient> mocked = Mockito.mockConstruction(ServiceClient.class,
+				(mock, context) -> {
+					throw constructionFailure;
+				})) {
+
+			SecureWebServiceCaller caller = new SecureWebServiceCaller(dummyEndpoint, "http://dummy.namespace",
+					"dummyPrefix");
+
+			WebServiceException ex = assertThrows(WebServiceException.class,
+					() -> caller.chamarWebService("dummyMethod", Collections.emptyMap(), null, null));
+
+			assertEquals("Could not initialize mocked construction", ex.getCause().getMessage());
+			assertEquals(0, mocked.constructed().size());
 		}
 	}
 
@@ -409,6 +493,20 @@ class SecureWebServiceCallerTest {
 			verify(created).cleanup();
 			verify(created).cleanupTransport();
 		}
+	}
+
+	@Test
+	void testChamarWebServiceReturnsNullWhenSynchronousCallReturnsNull() throws Exception {
+		SecureWebServiceCaller caller = new SecureWebServiceCaller(dummyEndpoint, "http://dummy.namespace",
+				"dummyPrefix") {
+			@Override
+			protected OMElement chamarSincronoWS(String metodo, Map<String, ?> params, String wsUsername,
+					String wsPassword) throws WebServiceException {
+				return null;
+			}
+		};
+
+		assertNull(caller.chamarWebService("dummyMethod", Collections.emptyMap(), null, null));
 	}
 
 	@Test

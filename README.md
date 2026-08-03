@@ -1,175 +1,214 @@
-
 # wsCaller
 
-[![Build Status](https://github.com/mmilk23/wsCaller/actions/workflows/maven.yml/badge.svg)](https://github.com/mmilk23/wsCaller/actions)
+[![Java CI with Maven](https://github.com/mmilk23/wsCaller/actions/workflows/maven.yml/badge.svg)](https://github.com/mmilk23/wsCaller/actions/workflows/maven.yml)
+[![CodeQL](https://github.com/mmilk23/wsCaller/actions/workflows/codeql.yml/badge.svg)](https://github.com/mmilk23/wsCaller/actions/workflows/codeql.yml)
+[![Dependency Review](https://github.com/mmilk23/wsCaller/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/mmilk23/wsCaller/actions/workflows/dependency-review.yml)
+[![OWASP Dependency Check](https://github.com/mmilk23/wsCaller/actions/workflows/dependency-check.yml/badge.svg)](https://github.com/mmilk23/wsCaller/actions/workflows/dependency-check.yml)
+[![Snyk](https://github.com/mmilk23/wsCaller/actions/workflows/snyk.yml/badge.svg)](https://github.com/mmilk23/wsCaller/actions/workflows/snyk.yml)
 [![codecov](https://codecov.io/gh/mmilk23/wsCaller/branch/main/graph/badge.svg)](https://codecov.io/gh/mmilk23/wsCaller)
 [![Coverage Status](https://coveralls.io/repos/github/mmilk23/wsCaller/badge.svg)](https://coveralls.io/github/mmilk23/wsCaller)
-![Dependabot](https://img.shields.io/badge/Dependabot-enabled-brightgreen)
-[![Known Vulnerabilities](https://snyk.io/test/github/mmilk23/wsCaller/badge.svg)](https://snyk.io/test/github/mmilk23/wsCaller)
 [![Last Updated](https://img.shields.io/github/last-commit/mmilk23/wsCaller.svg)](https://github.com/mmilk23/wsCaller/commits/main)
 
-
-
-
-**wsCaller** is a lightweight Java library for making secure and generic web service calls without the need to generate stubs or rely on complex frameworks. It is designed to streamline interactions with SOAP-based web services while providing a customizable and testable architecture.
-
----
+**wsCaller** is a lightweight Java library for making secure and generic SOAP web service calls without generating stubs for every service contract. It wraps Apache Axis2 with a small API, supports optional username/password SOAP headers, and keeps the call path easy to test with mocks and stubs.
 
 ## Features
 
-- **Generic Web Service Calls**: Supports secure, synchronous SOAP-based service calls.
-- **Customizable Authentication**: Allows secure headers with username and password.
-- **Testability**: Includes extensible mechanisms to mock or stub service calls for unit testing.
-- **Minimal Dependencies**: Built with simplicity and maintainability in mind.
+- Generic synchronous SOAP calls through `SecureWebServiceCaller`.
+- Optional username/password security headers.
+- Request parameter mapping from `Map<String, Object>` to SOAP payload elements.
+- Axis2 isolation through `ServiceClientWrapper`, which keeps unit tests independent from live services.
+- Utility classes for common string and object parsing operations.
+- Maven build configured for Java 25.
 
----
+## Requirements
 
-## Getting Started
+- JDK 25.
+- Apache Maven 3.9 or newer.
+- Access to the target SOAP endpoint for integration/manual calls.
 
-### Prerequisites
+On this workstation, the JDK 25 path used for validation is:
 
-To use **wsCaller**, ensure you have the following installed:
+```powershell
+$env:JAVA_HOME = "C:\dev\aws-jdk25.0.4_7"
+$env:Path = "$env:JAVA_HOME\bin;$env:Path"
+```
 
-- Java 8 or later
-- Apache Maven
-- Access to a SOAP-based web service
+## Build
 
----
+Compile, test, package, and generate the JaCoCo report:
 
-### Installation
+```bash
+mvn -B clean verify
+```
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/mmilk23/wsCaller.git
-   cd wsCaller
-   ```
+Install the artifact in the local Maven repository:
 
-2. Build the project using Maven:
-   ```bash
-   mvn clean install
-   ```
+```bash
+mvn -B clean install
+```
 
----
+The generated JAR is written to:
+
+```text
+target/wscaller-1.2.0.jar
+```
+
+## Maven Dependency
+
+The Maven coordinates for this project are:
+
+```xml
+<dependency>
+    <groupId>io.github.mmilk23</groupId>
+    <artifactId>wscaller</artifactId>
+    <version>1.2.0</version>
+</dependency>
+```
+
+Before the first Maven Central publication is available, another Maven project on the same machine can still use `wsCaller` after a local install:
+
+```bash
+mvn -B clean install
+```
+
+The release workflow publishes to Maven Central and attaches the generated JARs to GitHub Releases for tags matching `v*.*.*`, such as `v1.2.0`.
 
 ## Usage
 
-### Example: Making a Secure Web Service Call
-
-Below is an example of how to use **wsCaller** to make a secure SOAP request:
-
 ```java
 import com.milklabs.wscall.SecureWebServiceCaller;
+import com.milklabs.wscall.WebServiceException;
 import org.apache.axis2.addressing.EndpointReference;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Main {
-    public static void main(String[] args) {
-        try {
-            // Create a web service caller
-            SecureWebServiceCaller caller = new SecureWebServiceCaller(
-                    new EndpointReference("http://example.com/service"),
-                    "http://example.com/namespace",
-                    "prefix"
-            );
+    public static void main(String[] args) throws WebServiceException {
+        SecureWebServiceCaller caller = new SecureWebServiceCaller(
+                new EndpointReference("http://example.com/service"),
+                "http://example.com/namespace",
+                "ns"
+        );
 
-            // Define parameters for the service call
-            Map<String, Object> params = new HashMap<>();
-            params.put("param1", "value1");
+        Map<String, Object> params = new HashMap<>();
+        params.put("param1", "value1");
 
-            // Make the web service call
-            String response = caller.chamarWebService("methodName", params, "username", "password");
+        String response = caller.chamarWebService(
+                "methodName",
+                params,
+                "username",
+                "password"
+        );
 
-            // Process the response
-            System.out.println("Response: " + response);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        System.out.println(response);
     }
 }
 ```
 
----
+For a complete runnable example, see `src/main/java/com/milklabs/exemplo/ExemploChamadaWS.java`.
 
-## Testing
+## Tests And Coverage
 
-The project includes unit tests for key components. Tests are written using **JUnit 5**.
-
-To run the tests, execute:
+Run only the unit tests:
 
 ```bash
-mvn test
+mvn -B test
 ```
 
-### Mocking and Stubs
+Run the full verification lifecycle and open the local JaCoCo report:
 
-The library includes a `ServiceClientWrapperStub` class to facilitate testing without connecting to a live web service. This enables testing various scenarios, such as exceptions or specific responses.
+```bash
+mvn -B clean verify
+```
 
----
+```text
+target/site/jacoco/index.html
+```
+
+The current test suite covers the main call flow, error wrapping, service-client wrapper behavior, the example parser, and utility classes. At the time of this update, JaCoCo reports 100% instruction, branch, line, complexity, method, and class coverage.
+
+## Security Checks
+
+The repository has three dependency-security layers in GitHub Actions:
+
+- **Dependency Review**: runs on pull requests and blocks newly introduced dependencies with high-or-critical known vulnerabilities.
+- **OWASP Dependency-Check**: runs on push, pull request, weekly schedule, and manual dispatch. It fails the build for dependencies with CVSS `>= 7.0` and uploads HTML/JSON reports.
+- **Snyk**: runs on push, pull request, weekly schedule, and manual dispatch. It scans Maven dependencies with `severity-threshold=high`, uploads SARIF to GitHub Code Scanning, and monitors the project in Snyk on pushes.
+
+Required GitHub repository secret:
+
+```text
+SNYK_TOKEN
+```
+
+Required GitHub repository secrets for Maven Central releases:
+
+```text
+CENTRAL_USERNAME
+CENTRAL_PASSWORD
+GPG_PRIVATE_KEY
+GPG_PASSPHRASE
+```
+
+`CENTRAL_USERNAME` and `CENTRAL_PASSWORD` must come from a Sonatype Central Portal user token. `GPG_PRIVATE_KEY` must be the ASCII-armored private key used to sign Maven artifacts.
+
+Optional GitHub repository secret for faster and more reliable OWASP/NVD updates:
+
+```text
+NVD_API_KEY
+```
+
+Run OWASP Dependency-Check locally:
+
+```bash
+mvn -B -Pdependency-check verify -DskipTests
+```
+
+Run Snyk locally after authenticating with the Snyk CLI:
+
+```bash
+snyk test --file=pom.xml --package-manager=maven --severity-threshold=high
+```
+
+## GitHub Actions
+
+- `maven.yml`: builds and tests on Ubuntu and Windows with JDK 25, then uploads coverage reports.
+- `codeql.yml`: performs Java static analysis with CodeQL.
+- `dependency-review.yml`: reviews dependency changes on pull requests.
+- `dependency-check.yml`: scans dependencies with OWASP Dependency-Check.
+- `snyk.yml`: scans and monitors dependencies with Snyk.
+- `release.yml`: publishes signed artifacts to Maven Central and creates GitHub Releases for tags matching `v*.*.*`.
 
 ## Project Structure
 
-```
+```text
 wsCaller/
-├── src/main/java/com/milklabs/wscall
-│   ├── SecureWebServiceCaller.java       # Core class for making web service calls
-│   ├── ServiceClientWrapper.java         # Wrapper for the Axis2 ServiceClient
-│   └── util                              # Utility classes
-├── src/test/java/com/milklabs/wscall
-│   ├── SecureWebServiceCallerTest.java   # Unit tests for the core functionality
-│   ├── ServiceClientWrapperStub.java     # Stub class for testing
+|-- pom.xml
+|-- src/main/java/com/milklabs/wscall
+|   |-- SecureWebServiceCaller.java
+|   |-- ServiceClientWrapper.java
+|   |-- ServiceClientWrapperStub.java
+|   |-- WebServiceException.java
+|   `-- util/
+|-- src/main/java/com/milklabs/exemplo
+|   |-- ExemploChamadaWS.java
+|   `-- vo/
+`-- src/test/java/com/milklabs
+    |-- exemplo/
+    `-- wscall/
 ```
 
----
+## Main Dependencies
 
-## Dependencies
-
-- **Apache Axis2**: Core dependency for SOAP-based web service calls.
-- **JUnit 5**: Testing framework.
-- **Log4j**: For logging.
-
-Add the following dependencies to your Maven `pom.xml`:
-
-```xml
-<dependencies>
-    <dependency>
-        <groupId>org.apache.axis2</groupId>
-        <artifactId>axis2</artifactId>
-        <version>1.8.2</version>
-    </dependency>
-    <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter</artifactId>
-        <version>5.10.0</version>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-        <version>1.2.17</version>
-    </dependency>
-</dependencies>
-```
-
----
-
-## Contributing
-
-Contributions are welcome! Please fork the repository, make changes, and submit a pull request.
-
----
+- Apache Axis2 2.0.0.
+- JDOM 2.0.6.1.
+- SLF4J 2.0.17 and Logback 1.5.26.
+- Lombok 1.18.42.
+- JUnit Jupiter 5.14.2 and Mockito 5.21.0 for tests.
+- JaCoCo 0.8.14 for coverage.
+- OWASP Dependency-Check Maven Plugin 12.2.2 for dependency vulnerability scanning.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-## Contact
-
-For any inquiries or support, feel free to contact the project maintainer:
-- **GitHub**: [@mmilk23](https://github.com/mmilk23)
-
-If you found this project helpful, please consider giving it a star ⭐️.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

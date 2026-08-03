@@ -2,6 +2,7 @@ package com.milklabs.wscall.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -49,6 +50,7 @@ class ObjectParserTest {
 	void testToString() {
 		assertEquals("test", ObjectParser.toString("test"));
 		assertEquals("1,2,3", ObjectParser.toString(new Object[] { 1, 2, 3 }));
+		assertNotNull(ObjectParser.toString(new Object[] {}));
 		assertEquals("", ObjectParser.toString(null));
 		Object customObject = new Object() {
 	        @Override
