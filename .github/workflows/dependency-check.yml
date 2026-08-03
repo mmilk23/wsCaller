@@ -12,6 +12,9 @@ on:
 permissions:
   contents: read
 
+env:
+  DEPENDENCY_CHECK_DATA: ~/.cache/dependency-check
+
 jobs:
   dependency-check:
     name: Scan dependencies
@@ -28,12 +31,20 @@ jobs:
           distribution: "temurin"
           cache: maven
 
+      - name: Cache OWASP Dependency-Check data
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.DEPENDENCY_CHECK_DATA }}
+          key: dependency-check-data-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            dependency-check-data-${{ runner.os }}-
+
       - name: Run OWASP Dependency-Check
         shell: bash
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
         run: |
-          args=(mvn -B -Pdependency-check verify -DskipTests --file pom.xml)
+          args=(mvn -B -Pdependency-check verify -DskipTests "-DdataDirectory=${DEPENDENCY_CHECK_DATA}" --file pom.xml)
           if [ -n "${NVD_API_KEY}" ]; then
             args+=("-DnvdApiKey=${NVD_API_KEY}")
           fi
