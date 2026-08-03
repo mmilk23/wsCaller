@@ -37,15 +37,31 @@
 		<maven.javadoc.plugin.version>3.12.0</maven.javadoc.plugin.version>
 		<maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
 		<central.publishing.maven.plugin.version>0.11.0</central.publishing.maven.plugin.version>
-		<axis2.version>2.0.0</axis2.version>
+		<axis2.version>2.0.1</axis2.version>
 		<slf4j.version>2.0.17</slf4j.version>
-		<logback.version>1.5.26</logback.version>
+		<logback.version>1.5.36</logback.version>
+		<httpcore5.version>5.4.3</httpcore5.version>
+		<axiom.version>2.0.0</axiom.version>
 		<jdom.version>2.0.6.1</jdom.version>
 		<mockito.version>5.21.0</mockito.version>
 		<junit.version>5.14.2</junit.version>
 		<lombok.version>1.18.42</lombok.version>
 		<dependency-check.version>12.2.2</dependency-check.version>
 	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.apache.httpcomponents.core5</groupId>
+				<artifactId>httpcore5</artifactId>
+				<version>${httpcore5.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.httpcomponents.core5</groupId>
+				<artifactId>httpcore5-h2</artifactId>
+				<version>${httpcore5.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.axis2</groupId>
@@ -70,7 +86,7 @@
 		<dependency>
 			<groupId>org.apache.ws.commons.axiom</groupId>
 			<artifactId>axiom-impl</artifactId>
-			<version>${axis2.version}</version>
+			<version>${axiom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.axis2</groupId>
