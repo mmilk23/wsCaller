@@ -192,7 +192,7 @@ public class SecureWebServiceCaller {
 	 * @param params
 	 * @param username
 	 * @return representacao XML com a resposta do servico
-	 * @throws SecureWebServiceException
+	 * @throws WebServiceException
 	 */
 	public String chamarWebService(String metodo, Map<String, Object> params, String username, String password)
 			throws WebServiceException {

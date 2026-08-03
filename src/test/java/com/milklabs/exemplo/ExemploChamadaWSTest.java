@@ -20,6 +20,8 @@ import java.lang.reflect.Method;
 import org.jdom2.JDOMException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
 
 import com.milklabs.exemplo.vo.CountryCurrencyVO;
 import com.milklabs.wscall.SecureWebServiceCaller;
@@ -48,7 +50,36 @@ class ExemploChamadaWSTest {
 	                		+ "  </soap:Body>\r\n"
 	                		+ "</soap:Envelope>");
 
+        ExemploChamadaWS.setWsCaller(mockWsCaller);
         ExemploChamadaWS.main(new String[]{});
+    }
+
+    @Test
+    void testMainCreatesDefaultCallerWhenNotInjected() throws Exception {
+        String xmlResponse = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+                + "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\r\n"
+                + "  <soap:Body>\r\n"
+                + "    <m:CountryCurrencyResponse xmlns:m=\"http://www.oorsprong.org/websamples.countryinfo\">\r\n"
+                + "      <m:CountryCurrencyResult>\r\n"
+                + "        <m:sISOCode>BRL</m:sISOCode>\r\n"
+                + "        <m:sName>Brazil Real</m:sName>\r\n"
+                + "      </m:CountryCurrencyResult>\r\n"
+                + "    </m:CountryCurrencyResponse>\r\n"
+                + "  </soap:Body>\r\n"
+                + "</soap:Envelope>";
+
+        ExemploChamadaWS.setWsCaller(null);
+        try (MockedConstruction<SecureWebServiceCaller> mocked = Mockito.mockConstruction(SecureWebServiceCaller.class,
+                (mock, context) -> when(mock.chamarWebService(eq("CountryCurrency"), anyMap(), isNull(), isNull()))
+                        .thenReturn(xmlResponse))) {
+            ExemploChamadaWS.main(new String[]{});
+            assertEquals(1, mocked.constructed().size());
+        }
+    }
+
+    @Test
+    void testConstructor() {
+        assertNotNull(new ExemploChamadaWS());
     }
 
     @Test
@@ -75,6 +106,26 @@ class ExemploChamadaWSTest {
         assertEquals("Dollars", result.getSName());
      
     }
+
+    @Test
+    void testParseResponseWithoutSoapEnvelope() throws Exception {
+        String xmlResponse = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+                + "<m:CountryCurrencyResponse xmlns:m=\"http://www.oorsprong.org/websamples.countryinfo\">\r\n"
+                + "  <m:CountryCurrencyResult>\r\n"
+                + "    <m:sISOCode>EUR</m:sISOCode>\r\n"
+                + "    <m:sName>Euro</m:sName>\r\n"
+                + "  </m:CountryCurrencyResult>\r\n"
+                + "</m:CountryCurrencyResponse>";
+
+        Method method = ExemploChamadaWS.class.getDeclaredMethod("parseResponse", String.class);
+        method.setAccessible(true);
+
+        CountryCurrencyVO result = (CountryCurrencyVO) method.invoke(null, xmlResponse);
+
+        assertNotNull(result);
+        assertEquals("EUR", result.getSISOCode());
+        assertEquals("Euro", result.getSName());
+    }
     
     @Test
     void testParseResponseWithEmptyXML() throws Exception {
@@ -82,6 +133,18 @@ class ExemploChamadaWSTest {
         Method method = ExemploChamadaWS.class.getDeclaredMethod("parseResponse", String.class);
         method.setAccessible(true);
         Exception exception = assertThrows(InvocationTargetException.class, () -> method.invoke(null, emptyXml));
+
+        Throwable actualCause = exception.getCause();
+        assertNotNull(actualCause);
+        assertTrue(actualCause instanceof RuntimeException);
+        assertEquals("Error: Empty XML response", actualCause.getMessage());
+    }
+
+    @Test
+    void testParseResponseWithNullXML() throws Exception {
+        Method method = ExemploChamadaWS.class.getDeclaredMethod("parseResponse", String.class);
+        method.setAccessible(true);
+        Exception exception = assertThrows(InvocationTargetException.class, () -> method.invoke(null, new Object[] { null }));
 
         Throwable actualCause = exception.getCause();
         assertNotNull(actualCause);

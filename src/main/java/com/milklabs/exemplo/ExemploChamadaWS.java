@@ -30,28 +30,32 @@ import com.milklabs.wscall.WebServiceException;
  *         ENDPOINT:
  *         http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso
  * 
- *         REQUEST: 
+ *         REQUEST:
+ *         <pre>{@code
  *         <?xml version="1.0" encoding="utf-8"?>
  *         <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
- *         	<soap:Body>
- *         	<CountryCurrency xmlns="http://www.oorsprong.org/websamples.countryinfo">
- *         		<sCountryISOCode>US</sCountryISOCode> 
- *         	</CountryCurrency> 
- *         	</soap:Body>
+ *             <soap:Body>
+ *                 <CountryCurrency xmlns="http://www.oorsprong.org/websamples.countryinfo">
+ *                     <sCountryISOCode>US</sCountryISOCode>
+ *                 </CountryCurrency>
+ *             </soap:Body>
  *         </soap:Envelope>
+ *         }</pre>
  * 
  *         RESPONSE:
- *         <?xml version="1.0" encoding="utf-8"?> 
+ *         <pre>{@code
+ *         <?xml version="1.0" encoding="utf-8"?>
  *         <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
- *	          <soap:Body>
- *	          	<m:CountryCurrencyResponse xmlns:m="http://www.oorsprong.org/websamples.countryinfo">
- *	          	<m:CountryCurrencyResult> 
- *					<m:sISOCode>USD</m:sISOCode>
- *	          		<m:sName>Dollars</m:sName> 
- *	          	</m:CountryCurrencyResult>
- *	          </m:CountryCurrencyResponse> 
- *	          </soap:Body> 
+ *             <soap:Body>
+ *                 <m:CountryCurrencyResponse xmlns:m="http://www.oorsprong.org/websamples.countryinfo">
+ *                     <m:CountryCurrencyResult>
+ *                         <m:sISOCode>USD</m:sISOCode>
+ *                         <m:sName>Dollars</m:sName>
+ *                     </m:CountryCurrencyResult>
+ *                 </m:CountryCurrencyResponse>
+ *             </soap:Body>
  *         </soap:Envelope>
+ *         }</pre>
  */
 public class ExemploChamadaWS {
 	

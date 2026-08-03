@@ -14,24 +14,28 @@ class StringUtilsTest {
     void testToStringWithSeparatorIntArray() {
         assertEquals("1,2,3", StringUtils.toStringWithSeparator(new int[]{1, 2, 3}));
         assertEquals("", StringUtils.toStringWithSeparator(new int[]{}));
+        assertEquals("", StringUtils.toStringWithSeparator((int[]) null));
     }
 
     @Test
     void testToStringWithSeparatorIntArrayCustomSeparator() {
         assertEquals("1|2|3", StringUtils.toStringWithSeparator(new int[]{1, 2, 3}, "|"));
         assertEquals("", StringUtils.toStringWithSeparator(new int[]{}, "|"));
+        assertEquals("", StringUtils.toStringWithSeparator((int[]) null, "|"));
     }
 
     @Test
     void testToStringWithSeparatorLongArray() {
         assertEquals("1,2,3", StringUtils.toStringWithSeparator(new long[]{1L, 2L, 3L}));
         assertEquals("", StringUtils.toStringWithSeparator(new long[]{}));
+        assertEquals("", StringUtils.toStringWithSeparator((long[]) null));
     }
 
     @Test
     void testToStringWithSeparatorLongArrayCustomSeparator() {
         assertEquals("1|2|3", StringUtils.toStringWithSeparator(new long[]{1L, 2L, 3L}, "|"));
         assertEquals("", StringUtils.toStringWithSeparator(new long[]{}, "|"));
+        assertEquals("", StringUtils.toStringWithSeparator((long[]) null, "|"));
     }
 
     @Test
@@ -124,6 +128,7 @@ class StringUtilsTest {
     void testSubstringFromFirst() {
         assertEquals("Hello", StringUtils.substringFromFirst("Hello World", " "));
         assertEquals("Hello", StringUtils.substringFromFirst("Hello", " "));
+        assertEquals(null, StringUtils.substringFromFirst(null, " "));
     }
 
     @Test
@@ -131,6 +136,7 @@ class StringUtilsTest {
         assertEquals("World", StringUtils.substringFromLast("Hello World", " "));
         assertEquals("", StringUtils.substringFromLast("Hello ", " "));
         assertEquals("", StringUtils.substringFromLast(null, null));
+        assertEquals("", StringUtils.substringFromLast("Hello", " "));
         
     }
 
@@ -144,12 +150,16 @@ class StringUtilsTest {
     void testToStringWithSeparatorStringArray() {
         assertEquals("one,two,three", StringUtils.toStringWithSeparator(new String[]{"one", "two", "three"}));
         assertEquals("", StringUtils.toStringWithSeparator(new String[]{}));
+        assertEquals("", StringUtils.toStringWithSeparator((String[]) null));
+        assertEquals("one,two", StringUtils.toStringWithSeparator(new String[]{"one", " ", "two"}));
     }
 
     @Test
     void testToStringWithSeparatorStringArrayCustomSeparator() {
         assertEquals("one|two|three", StringUtils.toStringWithSeparator(new String[]{"one", "two", "three"}, "|"));
         assertEquals("", StringUtils.toStringWithSeparator(new String[]{}, "|"));
+        assertEquals("", StringUtils.toStringWithSeparator((String[]) null, "|"));
+        assertEquals("one|two", StringUtils.toStringWithSeparator(new String[]{"one", "", "two"}, "|"));
     }
 
 
@@ -157,6 +167,7 @@ class StringUtilsTest {
     void testConcatsCommaOrReturnEmpty() {
         assertEquals(",test", StringUtils.concatsCommaOrReturnEmpty("test"));
         assertEquals("", StringUtils.concatsCommaOrReturnEmpty(""));
+        assertEquals("", StringUtils.concatsCommaOrReturnEmpty(null));
     }
 
     @Test
