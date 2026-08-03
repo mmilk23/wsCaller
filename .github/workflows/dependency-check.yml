@@ -2,9 +2,9 @@ name: OWASP Dependency Check
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "development" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "development" ]
   schedule:
     - cron: "37 5 * * 2"
   workflow_dispatch:
