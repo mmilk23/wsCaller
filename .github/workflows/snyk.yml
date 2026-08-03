@@ -2,9 +2,9 @@ name: Snyk
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "development" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "development" ]
   schedule:
     - cron: "52 5 * * 3"
   workflow_dispatch:

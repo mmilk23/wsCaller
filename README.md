@@ -73,6 +73,13 @@ mvn -B clean install
 
 The release workflow publishes to Maven Central and attaches the generated JARs to GitHub Releases for tags matching `v*.*.*`, such as `v1.2.0`.
 
+## Branches
+
+- `main`: stable branch for released or release-ready code.
+- `development`: integration branch for ongoing work before it is promoted to `main`.
+
+Open feature and dependency-update pull requests against `development`. Promote `development` to `main` with a pull request after the build, dependency review, OWASP Dependency-Check, Snyk, and CodeQL checks are green.
+
 ## Usage
 
 ```java
@@ -173,11 +180,11 @@ snyk test --file=pom.xml --package-manager=maven --severity-threshold=high
 
 ## GitHub Actions
 
-- `maven.yml`: builds and tests on Ubuntu and Windows with JDK 25, then uploads coverage reports.
-- `codeql.yml`: performs Java static analysis with CodeQL.
-- `dependency-review.yml`: reviews dependency changes on pull requests.
-- `dependency-check.yml`: scans dependencies with OWASP Dependency-Check.
-- `snyk.yml`: scans and monitors dependencies with Snyk.
+- `maven.yml`: builds and tests pushes and pull requests for `main` and `development` on Ubuntu and Windows with JDK 25, then uploads coverage reports.
+- `codeql.yml`: performs Java static analysis for `main` and `development`.
+- `dependency-review.yml`: reviews dependency changes on pull requests targeting `main` or `development`.
+- `dependency-check.yml`: scans dependencies with OWASP Dependency-Check for `main` and `development`.
+- `snyk.yml`: scans and monitors dependencies for `main` and `development`.
 - `release.yml`: publishes signed artifacts to Maven Central and creates GitHub Releases for tags matching `v*.*.*`.
 
 ## Project Structure
