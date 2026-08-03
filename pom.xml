@@ -47,7 +47,7 @@
 		<jdom.version>2.0.6.1</jdom.version>
 		<mockito.version>5.21.0</mockito.version>
 		<junit.version>5.14.2</junit.version>
-		<lombok.version>1.18.42</lombok.version>
+		<lombok.version>1.18.46</lombok.version>
 		<dependency-check.version>12.2.2</dependency-check.version>
 	</properties>
 	<dependencyManagement>
