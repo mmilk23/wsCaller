@@ -73,6 +73,8 @@ mvn -B clean install
 
 The release workflow publishes to Maven Central and attaches the generated JARs to GitHub Releases for tags matching `v*.*.*`, such as `v1.2.0`.
 
+`mvnrepository.com` is not the publishing target; it is a third-party index. Publishing happens through Sonatype Central Portal, then Maven Repository and other indexes pick up the artifact after Maven Central syncs.
+
 ## Branches
 
 - `main`: stable branch for released or release-ready code.
@@ -158,7 +160,20 @@ GPG_PRIVATE_KEY
 GPG_PASSPHRASE
 ```
 
-`CENTRAL_USERNAME` and `CENTRAL_PASSWORD` must come from a Sonatype Central Portal user token. `GPG_PRIVATE_KEY` must be the ASCII-armored private key used to sign Maven artifacts.
+`CENTRAL_USERNAME` and `CENTRAL_PASSWORD` must come from a Sonatype Central Portal user token, not from the account login password. `GPG_PRIVATE_KEY` must be the ASCII-armored private key used to sign Maven artifacts.
+
+Before the first publication, confirm in Sonatype Central Portal that the namespace `io.github.mmilk23` is verified. GitHub-linked Central Portal accounts can usually publish under `io.github.<username>`.
+
+Release flow:
+
+```bash
+git switch main
+git pull --ff-only origin main
+git tag v1.2.0
+git push origin v1.2.0
+```
+
+The release workflow only publishes tags whose version matches `pom.xml`, and the tagged commit must already be part of `main`.
 
 Optional GitHub repository secret for faster and more reliable OWASP/NVD updates:
 
@@ -208,11 +223,11 @@ wsCaller/
 
 ## Main Dependencies
 
-- Apache Axis2 2.0.0.
+- Apache Axis2 2.0.1.
 - JDOM 2.0.6.1.
-- SLF4J 2.0.17 and Logback 1.5.26.
-- Lombok 1.18.42.
-- JUnit Jupiter 5.14.2 and Mockito 5.21.0 for tests.
+- SLF4J 2.0.17 and Logback 1.6.1.
+- Lombok 1.18.46.
+- JUnit Jupiter 6.1.2 and Mockito 5.23.0 for tests.
 - JaCoCo 0.8.14 for coverage.
 - OWASP Dependency-Check Maven Plugin 12.2.2 for dependency vulnerability scanning.
 

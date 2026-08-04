@@ -15,6 +15,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 25
         uses: actions/setup-java@v5
@@ -23,10 +25,10 @@ jobs:
           distribution: "temurin"
           cache: maven
           server-id: central
-          server-username: CENTRAL_USERNAME
-          server-password: CENTRAL_PASSWORD
+          server-username-env-var: CENTRAL_USERNAME
+          server-password-env-var: CENTRAL_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg-passphrase: GPG_PASSPHRASE
+          gpg-passphrase-env-var: MAVEN_GPG_PASSPHRASE
 
       - name: Check release version
         shell: bash
@@ -37,13 +39,18 @@ jobs:
             echo "::error::Tag ${GITHUB_REF_NAME} does not match pom.xml version ${pom_version}."
             exit 1
           fi
+          git fetch --no-tags origin main
+          if ! git merge-base --is-ancestor "${GITHUB_SHA}" origin/main; then
+            echo "::error::Release tag ${GITHUB_REF_NAME} must point to a commit that is already in main."
+            exit 1
+          fi
 
       - name: Publish to Maven Central
         run: mvn -B -Pcentral-release clean deploy --file pom.xml
         env:
           CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
           CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v7
@@ -51,6 +58,14 @@ jobs:
           name: wscaller-${{ github.ref_name }}
           path: target/wscaller-*.jar
           if-no-files-found: error
+
+      - name: Upload Maven Central bundle
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: maven-central-bundle-${{ github.ref_name }}
+          path: target/central-publishing/central-bundle.zip
+          if-no-files-found: warn
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v3
