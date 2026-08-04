@@ -9,6 +9,7 @@
 	<name>wsCaller</name>
 	<description>A lightweight Java library for making secure and generic SOAP web service calls with Apache Axis2.</description>
 	<url>https://github.com/mmilk23/wsCaller</url>
+	<inceptionYear>2026</inceptionYear>
 	<licenses>
 		<license>
 			<name>MIT License</name>
@@ -29,6 +30,14 @@
 		<url>https://github.com/mmilk23/wsCaller</url>
 		<tag>HEAD</tag>
 	</scm>
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/mmilk23/wsCaller/issues</url>
+	</issueManagement>
+	<ciManagement>
+		<system>GitHub Actions</system>
+		<url>https://github.com/mmilk23/wsCaller/actions</url>
+	</ciManagement>
 	<properties>
 		<maven.compiler.release>25</maven.compiler.release>
 		<project.build.sourceEncoding>Cp1252</project.build.sourceEncoding>
@@ -279,7 +288,10 @@
 						<artifactId>maven-gpg-plugin</artifactId>
 						<version>${maven.gpg.plugin.version}</version>
 						<configuration>
+							<bestPractices>true</bestPractices>
+							<passphraseEnvName>MAVEN_GPG_PASSPHRASE</passphraseEnvName>
 							<gpgArguments>
+								<arg>--batch</arg>
 								<arg>--pinentry-mode</arg>
 								<arg>loopback</arg>
 							</gpgArguments>
