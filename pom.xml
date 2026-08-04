@@ -289,12 +289,9 @@
 						<version>${maven.gpg.plugin.version}</version>
 						<configuration>
 							<bestPractices>true</bestPractices>
+							<signer>bc</signer>
+							<keyEnvName>GPG_PRIVATE_KEY</keyEnvName>
 							<passphraseEnvName>GPG_PASSPHRASE</passphraseEnvName>
-							<gpgArguments>
-								<arg>--batch</arg>
-								<arg>--pinentry-mode</arg>
-								<arg>loopback</arg>
-							</gpgArguments>
 						</configuration>
 						<executions>
 							<execution>
