@@ -291,7 +291,6 @@
 							<bestPractices>true</bestPractices>
 							<signer>bc</signer>
 							<keyEnvName>GPG_PRIVATE_KEY</keyEnvName>
-							<passphraseEnvName>GPG_PASSPHRASE</passphraseEnvName>
 						</configuration>
 						<executions>
 							<execution>
