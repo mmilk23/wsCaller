@@ -289,7 +289,7 @@
 						<version>${maven.gpg.plugin.version}</version>
 						<configuration>
 							<bestPractices>true</bestPractices>
-							<passphraseEnvName>MAVEN_GPG_PASSPHRASE</passphraseEnvName>
+							<passphraseEnvName>GPG_PASSPHRASE</passphraseEnvName>
 							<gpgArguments>
 								<arg>--batch</arg>
 								<arg>--pinentry-mode</arg>
