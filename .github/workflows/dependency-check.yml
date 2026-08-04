@@ -17,7 +17,7 @@ env:
 
 jobs:
   dependency-check:
-    name: Scan dependencies
+    name: OWASP Dependency-Check
     runs-on: ubuntu-latest
 
     steps:
@@ -31,8 +31,9 @@ jobs:
           distribution: "temurin"
           cache: maven
 
-      - name: Cache OWASP Dependency-Check data
-        uses: actions/cache@v4
+      - name: Restore OWASP Dependency-Check data
+        id: dependency-check-cache
+        uses: actions/cache/restore@v5
         with:
           path: ${{ env.DEPENDENCY_CHECK_DATA }}
           key: dependency-check-data-${{ runner.os }}-${{ github.run_id }}
@@ -49,6 +50,13 @@ jobs:
             args+=("-DnvdApiKey=${NVD_API_KEY}")
           fi
           "${args[@]}"
+
+      - name: Save OWASP Dependency-Check data
+        if: always() && steps.dependency-check-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ env.DEPENDENCY_CHECK_DATA }}
+          key: ${{ steps.dependency-check-cache.outputs.cache-primary-key }}
 
       - name: Upload OWASP Dependency-Check report
         if: always()
