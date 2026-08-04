@@ -17,7 +17,7 @@ env:
 
 jobs:
   dependency-check:
-    name: Scan dependencies
+    name: OWASP Dependency-Check
     runs-on: ubuntu-latest
 
     steps:
