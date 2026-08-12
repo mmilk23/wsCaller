@@ -20,11 +20,24 @@
 - Utility classes for common string and object parsing operations.
 - Maven build configured for Java 25.
 
+## Advantages
+
+- **No generated stubs required**: call SOAP services directly when you know the endpoint, namespace, operation, and parameter names.
+- **Small public API**: most integrations only need `SecureWebServiceCaller`, a `Map<String, Object>`, and basic error handling.
+- **Lower integration overhead**: useful for legacy SOAP services where generating and maintaining client code for every WSDL is inconvenient.
+- **Optional security header**: send WS-Security username/password credentials only when the target service requires them.
+- **Easy to test**: the Axis2 call path can be isolated with wrappers, stubs, Mockito, or custom subclasses.
+- **AI-friendly usage contract**: the repository includes `docs/AI_USAGE.md` and `llms.txt` so coding agents can use the library with fewer assumptions.
+
 ## Requirements
 
 - JDK 25.
 - Apache Maven 3.9 or newer.
 - Access to the target SOAP endpoint for integration/manual calls.
+
+### Java Compatibility Note
+
+This project is currently built and validated with JDK 25. The original version of the library was written for JDK 8, so the source code may still be adaptable to earlier Java versions by changing the Maven compiler configuration and rebuilding from source. If you need Java 8 compatibility, run the full test suite after changing the target release.
 
 On this workstation, the JDK 25 path used for validation is:
 
@@ -50,7 +63,7 @@ mvn -B clean install
 The generated JAR is written to:
 
 ```text
-target/wscaller-1.2.0.jar
+target/wscaller-1.2.1.jar
 ```
 
 ## Maven Dependency
@@ -61,7 +74,7 @@ The Maven coordinates for this project are:
 <dependency>
     <groupId>io.github.mmilk23</groupId>
     <artifactId>wscaller</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
 </dependency>
 ```
 
@@ -71,7 +84,7 @@ Before the first Maven Central publication is available, another Maven project o
 mvn -B clean install
 ```
 
-The release workflow publishes to Maven Central and attaches the generated JARs to GitHub Releases for tags matching `v*.*.*`, such as `v1.2.0`.
+The release workflow publishes to Maven Central and attaches the generated JARs to GitHub Releases for tags matching `v*.*.*`, such as `v1.2.1`.
 
 `mvnrepository.com` is not the publishing target; it is a third-party index. Publishing happens through Sonatype Central Portal, then Maven Repository and other indexes pick up the artifact after Maven Central syncs.
 
@@ -83,6 +96,10 @@ The release workflow publishes to Maven Central and attaches the generated JARs 
 Open feature and dependency-update pull requests against `development`. Promote `development` to `main` with a pull request after the build, dependency review, OWASP Dependency-Check, Snyk, and CodeQL checks are green.
 
 ## Usage
+
+For detailed end-user API documentation, see [docs/API.md](docs/API.md).
+
+For AI agents and automation tools that need a compact implementation contract, see [docs/AI_USAGE.md](docs/AI_USAGE.md) and [llms.txt](llms.txt).
 
 ```java
 import com.milklabs.wscall.SecureWebServiceCaller;
@@ -169,8 +186,8 @@ Release flow:
 ```bash
 git switch main
 git pull --ff-only origin main
-git tag v1.2.0
-git push origin v1.2.0
+git tag v1.2.1
+git push origin v1.2.1
 ```
 
 The release workflow only publishes tags whose version matches `pom.xml`, and the tagged commit must already be part of `main`.

@@ -1,0 +1,66 @@
+# wsCaller
+
+> Java library for synchronous SOAP 1.2 calls without generated WSDL stubs.
+
+## Use
+
+Main class:
+
+```java
+com.milklabs.wscall.SecureWebServiceCaller
+```
+
+Maven dependency:
+
+```xml
+<dependency>
+    <groupId>io.github.mmilk23</groupId>
+    <artifactId>wscaller</artifactId>
+    <version>1.2.1</version>
+</dependency>
+```
+
+Minimal Java usage:
+
+```java
+SecureWebServiceCaller caller = new SecureWebServiceCaller(
+        new EndpointReference("https://example.com/soap/service"),
+        "http://example.com/namespace",
+        "ns"
+);
+
+Map<String, Object> params = new HashMap<>();
+params.put("elementName", "elementValue");
+
+String xml = caller.chamarWebService("OperationName", params, null, null);
+```
+
+With WS-Security UsernameToken:
+
+```java
+String xml = caller.chamarWebService("OperationName", params, username, password);
+```
+
+## Java Compatibility
+
+- Current build target: JDK 25.
+- Historical note: the original library was written for JDK 8.
+- Do not claim Java 8 compatibility unless the Maven compiler target is changed and the full test suite passes.
+
+## Contract
+
+- `params` keys are SOAP request element names.
+- `String` values are serialized as element text.
+- `null` values are omitted.
+- `HashMap` and `Hashtable` values are serialized as nested `entry/key/value` items.
+- Convert numeric, boolean, date, enum, and ID values to `String` before adding them to `params`.
+- Return value is raw XML as `String`.
+- Parse responses with an XML parser; do not use JSON parsing.
+- Exceptions are wrapped in `com.milklabs.wscall.WebServiceException`.
+
+## Docs
+
+- Human API guide: `docs/API.md`
+- AI agent guide: `docs/AI_USAGE.md`
+- Example code: `src/main/java/com/milklabs/exemplo/ExemploChamadaWS.java`
+- Main implementation: `src/main/java/com/milklabs/wscall/SecureWebServiceCaller.java`

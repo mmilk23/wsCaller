@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.mmilk23</groupId>
 	<artifactId>wscaller</artifactId>
-	<version>1.2.0</version>
+	<version>1.2.1</version>
 	<packaging>jar</packaging>
 	<name>wsCaller</name>
 	<description>A lightweight Java library for making secure and generic SOAP web service calls with Apache Axis2.</description>

@@ -22,11 +22,14 @@ import org.slf4j.LoggerFactory;
 import com.milklabs.wscall.util.StringUtils;
 
 /**
- * Implements generic calls to any webservice, whitout generate stubs o any
- * other bullshit
- * 
+ * Generic SOAP web service caller based on Apache Axis2.
+ * <p>
+ * This class builds a SOAP 1.2 request from an operation name and a parameter
+ * map, sends it synchronously to the configured endpoint, and returns the raw
+ * XML response. A WS-Security UsernameToken header is added when both username
+ * and password are provided.
+ *
  * @author mmilk23
- * 
  */
 public class SecureWebServiceCaller {
 
@@ -38,10 +41,12 @@ public class SecureWebServiceCaller {
 	protected static long timeoutHttp = 600;
 
 	/**
-	 * 
-	 * @param urlServico Endpoint
-	 * @param namespace
-	 * @param prefixo
+	 * Creates a caller for a SOAP endpoint.
+	 *
+	 * @param urlServico SOAP endpoint URL, usually the service endpoint rather than
+	 *                   the WSDL URL.
+	 * @param namespace  XML namespace used by the SOAP operation.
+	 * @param prefixo    Namespace prefix used for the operation element.
 	 */
 	public SecureWebServiceCaller(EndpointReference urlServico, String namespace, String prefixo) {
 		log.debug("[SecureWebServiceCaller] constructor called, urlServico: [{}] namespace: [{}] prefixo: [{}]", urlServico, namespace, prefixo);
@@ -57,12 +62,15 @@ public class SecureWebServiceCaller {
 	 */
 
 	/**
-	 * Chamada sincrona a um Web Service
-	 * 
-	 * @param metodo
-	 * @param params
-	 * @return OMElement
-	 * @throws WebServiceException
+	 * Performs a synchronous SOAP web service call and returns the response as an
+	 * {@link OMElement}.
+	 *
+	 * @param metodo     SOAP operation element name.
+	 * @param params     request parameters. Null values are ignored.
+	 * @param wsUsername optional WS-Security username.
+	 * @param wsPassword optional WS-Security password.
+	 * @return SOAP response element.
+	 * @throws WebServiceException if Axis2 or request processing fails.
 	 */
 	@SuppressWarnings("rawtypes")
 
@@ -185,14 +193,17 @@ public class SecureWebServiceCaller {
 	}
 
 	/**
-	 * Chamada sincrona a um Web Service
-	 * 
-	 * 
-	 * @param metodo
-	 * @param params
-	 * @param username
-	 * @return representacao XML com a resposta do servico
-	 * @throws WebServiceException
+	 * Performs a synchronous SOAP web service call and returns the response XML.
+	 *
+	 * @param metodo   SOAP operation element name.
+	 * @param params   request parameters. Use string values for scalar SOAP
+	 *                 elements; null values are ignored.
+	 * @param username optional WS-Security username. Header is added only when both
+	 *                 username and password are non-null.
+	 * @param password optional WS-Security password.
+	 * @return XML representation of the service response, or null when the
+	 *         underlying synchronous call returns null.
+	 * @throws WebServiceException if Axis2 or request processing fails.
 	 */
 	public String chamarWebService(String metodo, Map<String, Object> params, String username, String password)
 			throws WebServiceException {
