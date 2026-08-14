@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      DEPENDENCY_CHECK_DATA: ${{ runner.temp }}/dependency-check-data
+      DEPENDENCY_CHECK_DATA: ${{ github.workspace }}/.dependency-check-data
 
     steps:
       - name: Checkout
