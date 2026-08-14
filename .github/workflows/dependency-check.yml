@@ -1,8 +1,6 @@
 name: OWASP Dependency Check
 
 on:
-  push:
-    branches: [ "main", "development" ]
   pull_request:
     branches: [ "main", "development" ]
   schedule:
@@ -12,13 +10,13 @@ on:
 permissions:
   contents: read
 
-env:
-  DEPENDENCY_CHECK_DATA: ~/.cache/dependency-check
-
 jobs:
   dependency-check:
     name: OWASP Dependency-Check
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DEPENDENCY_CHECK_DATA: ${{ runner.temp }}/dependency-check-data
 
     steps:
       - name: Checkout
@@ -31,12 +29,17 @@ jobs:
           distribution: "temurin"
           cache: maven
 
+      - name: Generate weekly cache key
+        id: cache-key
+        shell: bash
+        run: echo "week=$(date -u +'%G-%V')" >> "$GITHUB_OUTPUT"
+
       - name: Restore OWASP Dependency-Check data
         id: dependency-check-cache
         uses: actions/cache/restore@v5
         with:
           path: ${{ env.DEPENDENCY_CHECK_DATA }}
-          key: dependency-check-data-${{ runner.os }}-${{ github.run_id }}
+          key: dependency-check-data-${{ runner.os }}-${{ steps.cache-key.outputs.week }}
           restore-keys: |
             dependency-check-data-${{ runner.os }}-
 
@@ -44,11 +47,25 @@ jobs:
         shell: bash
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+          CACHE_HIT: ${{ steps.dependency-check-cache.outputs.cache-hit }}
         run: |
-          args=(mvn -B -Pdependency-check verify -DskipTests "-DdataDirectory=${DEPENDENCY_CHECK_DATA}" --file pom.xml)
-          if [ -n "${NVD_API_KEY}" ]; then
+          mkdir -p "${DEPENDENCY_CHECK_DATA}"
+
+          args=(
+            mvn -B -Pdependency-check dependency-check:check
+            -DskipTests
+            "-DdataDirectory=${DEPENDENCY_CHECK_DATA}"
+            --file pom.xml
+          )
+
+          # An exact weekly cache hit already contains sufficiently recent NVD
+          # data. Avoid contacting the NVD API on every pull request.
+          if [ "${CACHE_HIT}" = "true" ] && [ "${{ github.event_name }}" = "pull_request" ]; then
+            args+=("-DautoUpdate=false")
+          elif [ -n "${NVD_API_KEY}" ]; then
             args+=("-DnvdApiKey=${NVD_API_KEY}")
           fi
+
           "${args[@]}"
 
       - name: Save OWASP Dependency-Check data
@@ -56,7 +73,7 @@ jobs:
         uses: actions/cache/save@v5
         with:
           path: ${{ env.DEPENDENCY_CHECK_DATA }}
-          key: ${{ steps.dependency-check-cache.outputs.cache-primary-key }}
+          key: dependency-check-data-${{ runner.os }}-${{ steps.cache-key.outputs.week }}
 
       - name: Upload OWASP Dependency-Check report
         if: always()
