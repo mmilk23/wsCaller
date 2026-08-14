@@ -14,7 +14,7 @@ jobs:
   dependency-check:
     name: OWASP Dependency-Check
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
     env:
       DEPENDENCY_CHECK_DATA: ${{ github.workspace }}/.dependency-check-data
 
@@ -39,9 +39,9 @@ jobs:
         uses: actions/cache/restore@v5
         with:
           path: ${{ env.DEPENDENCY_CHECK_DATA }}
-          key: dependency-check-data-${{ runner.os }}-${{ steps.cache-key.outputs.week }}
+          key: dependency-check-data-v2-${{ runner.os }}-${{ steps.cache-key.outputs.week }}
           restore-keys: |
-            dependency-check-data-${{ runner.os }}-
+            dependency-check-data-v2-${{ runner.os }}-
 
       - name: Run OWASP Dependency-Check
         shell: bash
@@ -69,11 +69,11 @@ jobs:
           "${args[@]}"
 
       - name: Save OWASP Dependency-Check data
-        if: always() && steps.dependency-check-cache.outputs.cache-hit != 'true'
+        if: success() && steps.dependency-check-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v5
         with:
           path: ${{ env.DEPENDENCY_CHECK_DATA }}
-          key: dependency-check-data-${{ runner.os }}-${{ steps.cache-key.outputs.week }}
+          key: dependency-check-data-v2-${{ runner.os }}-${{ steps.cache-key.outputs.week }}
 
       - name: Upload OWASP Dependency-Check report
         if: always()
