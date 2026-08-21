@@ -44,6 +44,15 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: mmilk23/wsCaller
 
+      - name: Upload test results to Codecov
+        if: matrix.os == 'ubuntu-latest' && !cancelled()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: mmilk23/wsCaller
+          report_type: test_results
+          files: target/surefire-reports/TEST-*.xml
+
       - name: Upload test results to Coveralls
         if: matrix.os == 'ubuntu-latest'
         uses: coverallsapp/github-action@v2
