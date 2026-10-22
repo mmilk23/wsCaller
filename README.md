@@ -7,6 +7,7 @@
 [![Snyk](https://github.com/mmilk23/wsCaller/actions/workflows/snyk.yml/badge.svg)](https://github.com/mmilk23/wsCaller/actions/workflows/snyk.yml)
 [![codecov](https://codecov.io/gh/mmilk23/wsCaller/branch/main/graph/badge.svg)](https://codecov.io/gh/mmilk23/wsCaller)
 [![Coverage Status](https://coveralls.io/repos/github/mmilk23/wsCaller/badge.svg)](https://coveralls.io/github/mmilk23/wsCaller)
+[![Maven](https://badges.mvnrepository.com/badge/io.github.mmilk23/wscaller/badge.svg?label=Maven&color=green)](https://mvnrepository.com/artifact/io.github.mmilk23/wscaller)
 [![Last Updated](https://img.shields.io/github/last-commit/mmilk23/wsCaller.svg)](https://github.com/mmilk23/wsCaller/commits/main)
 
 **wsCaller** is a lightweight Java library for making secure and generic SOAP web service calls without generating stubs for every service contract. It wraps Apache Axis2 with a small API, supports optional username/password SOAP headers, and keeps the call path easy to test with mocks and stubs.
